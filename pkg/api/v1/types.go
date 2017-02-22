@@ -328,6 +328,9 @@ type VolumeSource struct {
 	PhotonPersistentDisk *PhotonPersistentDiskVolumeSource `json:"photonPersistentDisk,omitempty" protobuf:"bytes,23,opt,name=photonPersistentDisk"`
 	// Items for all in one resources secrets, configmaps, and downward API
 	Projected *ProjectedVolumeSource `json:"projected,omitempty"`
+
+	// Minfs represents the MinFS mount on the host.
+	MinFS *MinfsVolumeSource `json:"minfs,omitempty" protobuf:"bytes,24,opt,name=minfs"`
 }
 
 // PersistentVolumeClaimVolumeSource references the user's PVC in the same namespace.
@@ -413,6 +416,8 @@ type PersistentVolumeSource struct {
 	AzureDisk *AzureDiskVolumeSource `json:"azureDisk,omitempty" protobuf:"bytes,16,opt,name=azureDisk"`
 	// PhotonPersistentDisk represents a PhotonController persistent disk attached and mounted on kubelets host machine
 	PhotonPersistentDisk *PhotonPersistentDiskVolumeSource `json:"photonPersistentDisk,omitempty" protobuf:"bytes,17,opt,name=photonPersistentDisk"`
+	// Minfs represents the MinFS mount on the host.
+	MinFS *MinfsVolumeSource `json:"minfs,omitempty" protobuf:"bytes,18,opt,name=minfs"`
 }
 
 // +genclient=true
@@ -435,7 +440,7 @@ type PersistentVolume struct {
 	Spec PersistentVolumeSpec `json:"spec,omitempty" protobuf:"bytes,2,opt,name=spec"`
 
 	// Status represents the current information/status for the persistent volume.
-	// Populated by the system.
+	// Populated by photonPersistentDiskthe system.
 	// Read-only.
 	// More info: http://kubernetes.io/docs/user-guide/persistent-volumes#persistent-volumes
 	// +optional
@@ -644,6 +649,27 @@ type EmptyDirVolumeSource struct {
 	// More info: http://kubernetes.io/docs/user-guide/volumes#emptydir
 	// +optional
 	Medium StorageMedium `json:"medium,omitempty" protobuf:"bytes,1,opt,name=medium,casttype=StorageMedium"`
+}
+
+// Represents a Minfs mount that lasts the lifetime of a pod.
+// Minfs volumes do not support ownership management or SELinux relabeling.
+type MinfsVolumeSource struct {
+	// Endpoint is the URL address of Minio server.
+	Endpoint string `json:"endpoint" protobuf:"bytes,1,opt,name=endpoint"`
+
+	// Path is the mount path for Minfs.
+	Path string `json:"path" protobuf:"bytes,2,opt,name=path"`
+	// Bucket is the name of the remote Miio bucket to be mounted.
+	Bucket string `json:"bucket" protobuf:"bytes,3,opt,name=bucket"`
+	// AccessKey is the access-key for the remote Minio server.
+	AccessKey string `json:"access-key" protobuf:"bytes,4,opt,name=access-key"`
+	// SecretKey is the secret key for the remote Minio server.
+	SecretKey string `json:"secret-key" protobuf:"bytes,5,opt,name=secret-key"`
+
+	// ReadOnly here will force the Minfs volume to be mounted with read-only permissions.
+	// Defaults to false.
+	// +optional
+	ReadOnly bool `json:"readOnly,omitempty" protobuf:"varint,3,opt,name=readOnly"`
 }
 
 // Represents a Glusterfs mount that lasts the lifetime of a pod.
